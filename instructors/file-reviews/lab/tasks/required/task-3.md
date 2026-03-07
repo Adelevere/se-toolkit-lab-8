@@ -81,7 +81,7 @@ No issues found.
 
 ### Task document template (tasks.md Section 1)
 
-1. **Lines 11–18:** Missing `<h4>Diagram</h4>` section between Context and Table of contents. The task involves actions across three environments (local development, VM deployment, GitHub PR), which requires a Mermaid sequence diagram per convention (tasks.md 1.1, line 129: "Diagram is required whenever the task involves actions across multiple actors or environments").
+1. ~~**Lines 11–18:** Missing `<h4>Diagram</h4>` section between Context and Table of contents. The task involves actions across three environments (local development, VM deployment, GitHub PR), which requires a Mermaid sequence diagram per convention (tasks.md 1.1, line 129: "Diagram is required whenever the task involves actions across multiple actors or environments").~~
 
 ### 4.1. Instructions wording
 
@@ -101,7 +101,7 @@ No issues found.
 
 ### 4.5. Ordered lists
 
-1. **Lines 120–122:** Sequential implementation steps ("Add a state variable…", "Add buttons…", "Render the Items table…") use a bullet list (`-`) instead of a numbered list (`1. 2. 3.`). These are sequential actions that build on each other and should be numbered per convention 4.5.
+1. ~~**Lines 120–122:** Sequential implementation steps ("Add a state variable…", "Add buttons…", "Render the Items table…") use a bullet list (`-`) instead of a numbered list (`1. 2. 3.`). These are sequential actions that build on each other and should be numbered per convention 4.5.~~
 
 ### 4.6. Mini-ToC
 
@@ -113,13 +113,13 @@ No issues found.
 
 ### 4.8. Links and cross-references
 
-1. **Line 38:** Links to `../../../wiki/git-workflow.md` without a section anchor. Convention 4.8 says "Don't link to the top-level heading of a file. Link to a specific subsection instead." Linking without an anchor is equivalent to linking to the top-level heading. (Note: the task template in `tasks.md` Section 1 uses this same pattern, so the template itself may need updating.)
+1. ~~**Line 38:** Links to `../../../wiki/git-workflow.md` without a section anchor. Convention 4.8 says "Don't link to the top-level heading of a file. Link to a specific subsection instead." Linking without an anchor is equivalent to linking to the top-level heading. (Note: the task template in `tasks.md` Section 1 uses this same pattern, so the template itself may need updating.)~~
 
 ### 4.9. Notes, tips, warnings
 
-1. **Line 151:** Uses `**Tip:**` in plain text inside a numbered list. Per convention 4.9, alerts inside lists must use the fallback blockquote format with emoji and bold label (e.g., `> 🟩 **Tip**`).
+1. ~~**Line 151:** Uses `**Tip:**` in plain text inside a numbered list. Per convention 4.9, alerts inside lists must use the fallback blockquote format with emoji and bold label (e.g., `> 🟩 **Tip**`).~~
 
-2. **Line 193:** Uses `**Note:**` in plain text inside a numbered list. Per convention 4.9, alerts inside lists must use the fallback blockquote format with emoji and bold label (e.g., `> 🟦 **Note**`).
+2. ~~**Line 193:** Uses `**Note:**` in plain text inside a numbered list. Per convention 4.9, alerts inside lists must use the fallback blockquote format with emoji and bold label (e.g., `> 🟦 **Note**`).~~
 
 ### 4.10. Images
 
@@ -159,11 +159,11 @@ No issues found.
 
 ### 4.19. Steps with sub-steps
 
-1. **Lines 118–122:** "A simple approach:" followed by bullet items describes sequential implementation steps but lacks the proper transition phrase ("Complete these steps:" for student actions or "does the following:" for artifact behavior) per convention 4.19.
+1. ~~**Lines 118–122:** "A simple approach:" followed by bullet items describes sequential implementation steps but lacks the proper transition phrase ("Complete these steps:" for student actions or "does the following:" for artifact behavior) per convention 4.19.~~
 
 ### 4.20. Placeholders in docs
 
-1. **Line 85:** `<lab-id>` placeholder used in the AI prompt without a linked explanation or inline definition. Per convention 4.20, placeholders should link to an explanation section or include inline clarification.
+1. ~~**Line 85:** `<lab-id>` placeholder used in the AI prompt without a linked explanation or inline definition. Per convention 4.20, placeholders should link to an explanation section or include inline clarification.~~
 
 ### 4.21. `docker compose up` commands
 
@@ -191,7 +191,7 @@ Not applicable (uses `<your-vm-ip-address>` placeholder, not a hardcoded example
 
 ### Step checkpoints (tasks.md 4.18)
 
-1. **Line 248 (step 1.9, item 6):** "Verify the Dashboard page shows charts" is a checkpoint worded as a numbered step. Checkpoints must be indented under the action step they verify, not numbered as separate steps.
+1. ~~**Line 248 (step 1.9, item 6):** "Verify the Dashboard page shows charts" is a checkpoint worded as a numbered step. Checkpoints must be indented under the action step they verify, not numbered as separate steps.~~
 
 ---
 
