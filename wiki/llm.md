@@ -20,6 +20,8 @@
   - [Context engineering](#context-engineering)
 - [Prompt](#prompt)
   - [Prompt engineering](#prompt-engineering)
+- [Modality](#modality)
+  - [Multimodal model](#multimodal-model)
 
 ## What is an LLM
 
@@ -152,3 +154,15 @@ See [Prompt engineering](#prompt-engineering).
 ### Prompt engineering
 
 Prompt engineering is the practice of writing prompts that produce accurate, relevant, and useful responses.
+## Modality
+
+Modality is the type of input or output that a [model](#model) can process or generate:
+
+- text
+- image
+- audio
+- video
+
+### Multimodal model
+
+A multimodal model is a [model](#model) that supports multiple [modalities](#modality) (e.g., text and image).
