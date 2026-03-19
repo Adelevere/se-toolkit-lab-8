@@ -16,15 +16,20 @@
     - [`docker run` useful flags](#docker-run-useful-flags)
   - [`docker ps`](#docker-ps)
     - [`docker ps` useful variants](#docker-ps-useful-variants)
-- [Set up `Docker`](#set-up-docker)
+- [Set up `Docker` (LOCAL)](#set-up-docker-local)
   - [Install `Docker`](#install-docker)
   - [Start `Docker`](#start-docker)
+- [Set up `Docker` as the user `<user>` (REMOTE)](#set-up-docker-as-the-user-user-remote)
+  - [Add the user `<user>` to the group `docker` (REMOTE)](#add-the-user-user-to-the-group-docker-remote)
+- [Configure `Docker` DNS](#configure-docker-dns)
+- [Remove `Docker` containers](#remove-docker-containers)
   - [Remove all containers](#remove-all-containers)
-- [Remove the container running at the port](#remove-the-container-running-at-the-port)
+  - [Remove the container running at the port](#remove-the-container-running-at-the-port)
 - [Troubleshooting](#troubleshooting)
   - [Image pull fails](#image-pull-fails)
   - [Port conflict (`port is already allocated`)](#port-conflict-port-is-already-allocated)
-  - [DNS resolution errors (`getaddrinfo EAI_AGAIN`)](#dns-resolution-errors-getaddrinfo-eai_again)
+  - [DNS resolution errors](#dns-resolution-errors)
+  - [User not in the `docker` group](#user-not-in-the-docker-group)
 
 ## What is `Docker`
 
@@ -121,13 +126,12 @@ docker run --name <container-name> -p <host-port>:<container-port> <image-name>
 - `docker ps` - only running containers.
 - `docker ps -a` - all containers (including stopped).
 
-## Set up `Docker`
+## Set up `Docker` (LOCAL)
 
 Complete these steps:
 
-1. [Install `Docker`](#install-docker).
-2. [Start `Docker`](#start-docker).
-3. [Remove all containers](#remove-all-containers).
+1. [Install `Docker` (LOCAL)](#install-docker).
+2. [Start `Docker` (LOCAL)](#start-docker).
 
 ### Install `Docker`
 
@@ -141,18 +145,109 @@ If you installed `Docker Desktop`:
 2. Skip login.
 3. Wait until you see `Engine running`.
 
-### Remove all containers
+## Set up `Docker` as the user `<user>` (REMOTE)
+
+Complete these steps
+
+1. [Connect to the VM as the user `<user>`](./vm-access.md#connect-to-the-vm-as-the-user-user-local).
+2. [Add the user `<user>` to the group `docker` (REMOTE)](#add-the-user-user-to-the-group-docker-remote).
+3. [Configure `Docker` DNS as the user `<user>` (REMOTE)](#configure-docker-dns).
+
+### Add the user `<user>` to the group `docker` (REMOTE)
 
 > [!NOTE]
-> If there are permission errors, replace `docker` with `sudo docker`.
+> Replace the placeholder [`<user>`](./operating-system.md#user-placeholder).
 
-1. To stop all running containers,
+1. To add the user `<user>` to the group `docker`:
+
+   1. [Run in the `VS Code Terminal`](./vs-code.md#run-a-command-in-the-vs-code-terminal):
+
+      ```terminal
+      sudo usermod -aG docker <user>
+      ```
+
+   2. [Type the password for the user `<user>`](./shell.md#type-the-password-for-the-user).
+
+2. To check that the user `<user>` was added to the group `docker`,
 
    [run in the `VS Code Terminal`](./vs-code.md#run-a-command-in-the-vs-code-terminal):
 
    ```terminal
-   docker stop $(docker ps -q) 2>/dev/null
+   groups <user>
    ```
+
+   The output should be similar to this:
+
+   ```terminal
+   <user> : <user-group> sudo users docker
+   ```
+
+   > 🟦 **Note**
+   >
+   > See [`<user-group>`](./operating-system.md#user-group-placeholder).
+
+## Configure `Docker` DNS
+
+1. To create the `Docker` directory if it doesn't exist:
+
+   1. [Run in the `VS Code Terminal`](./vs-code.md#run-a-command-in-the-vs-code-terminal):
+
+      ```terminal
+      sudo mkdir -p /etc/docker/
+      ```
+
+   2. [Type the password](./shell.md#type-the-password-for-the-user).
+  
+2. To add `Google` DNS to `Docker`:
+
+   1. [Run in the `VS Code Terminal`](./vs-code.md#run-a-command-in-the-vs-code-terminal):
+
+      ```terminal
+      echo '{"dns": ["8.8.8.8", "8.8.4.4"]}' \
+      | jq \
+      | sudo tee /etc/docker/daemon.json
+      ```
+
+      The output should look like this:
+
+      ```json
+      {
+        "dns": [
+          "8.8.8.8",
+          "8.8.4.4"
+        ]
+      }
+      ```
+
+   2. [Type the password](./shell.md#type-the-password-for-the-user).
+
+3. To restart the `docker` service,
+
+   [run in the `VS Code Terminal`](./vs-code.md#run-a-command-in-the-vs-code-terminal):
+
+   ```terminal
+   sudo systemctl restart docker
+   ```
+
+## Remove `Docker` containers
+
+- Method 1: [Remove all containers](#remove-all-containers)
+- Method 2: [Remove the container running at the port](#remove-the-container-running-at-the-port)
+
+### Remove all containers
+
+> [!NOTE]
+> See [`<user>`](./operating-system.md#user-placeholder).
+
+1. To stop all running containers:
+
+   1. [Run in the `VS Code Terminal`](./vs-code.md#run-a-command-in-the-vs-code-terminal):
+
+      ```terminal
+      sudo docker stop $(docker ps -q) 2>/dev/null
+      ```
+
+   2.
 
    You should see removed [container IDs](#container-id).
 
@@ -161,7 +256,7 @@ If you installed `Docker Desktop`:
    [run in the `VS Code Terminal`](./vs-code.md#run-a-command-in-the-vs-code-terminal):
 
    ```terminal
-   docker container prune -f
+   sudo docker container prune -f
    ```
 
    The output should be empty or similar to this:
@@ -176,7 +271,7 @@ If you installed `Docker Desktop`:
    [run in the `VS Code Terminal`](./vs-code.md#run-a-command-in-the-vs-code-terminal):
 
    ```terminal
-   docker volume prune -f --all
+   sudo docker volume prune -f --all
    ```
 
    The output should be similar to this:
@@ -186,7 +281,7 @@ If you installed `Docker Desktop`:
    Total reclaimed space: ...
    ```
 
-## Remove the container running at the port
+### Remove the container running at the port
 
 1. To find the [container](#container) occupying the port,
 
@@ -237,7 +332,7 @@ If you installed `Docker Desktop`:
 <!-- no toc -->
 - [Image pull fails](#image-pull-fails)
 - [Port conflict (`port is already allocated`)](#port-conflict-port-is-already-allocated)
-- [DNS resolution errors (`getaddrinfo EAI_AGAIN`)](#dns-resolution-errors-getaddrinfo-eai_again)
+- [DNS resolution errors](#dns-resolution-errors)
 
 ### Image pull fails
 
@@ -254,48 +349,18 @@ Steps to fix:
 
 1. [Remove the container running at the port](#remove-the-container-running-at-the-port).
 
-### DNS resolution errors (`getaddrinfo EAI_AGAIN`)
+### DNS resolution errors
 
-If the build hangs or you see [DNS](./computer-networks.md#dns) errors like `getaddrinfo EAI_AGAIN registry.npmjs.org`, [`Docker`](./docker.md#what-is-docker) cannot resolve [domain names](./computer-networks.md#domain-name).
+If the build hangs or you see [DNS](./computer-networks.md#dns) errors, [`Docker`](./docker.md#what-is-docker) cannot resolve [domain names](./computer-networks.md#domain-name).
 This is a university network DNS issue.
 
 Steps to fix:
 
-1. To create the docker daemon directory if it doesn't exist,
+1. [Configure `Docker` DNS](#configure-docker-dns).
 
-   [run in the `VS Code Terminal`](./vs-code.md#run-a-command-in-the-vs-code-terminal):
+### User not in the `docker` group
 
-   ```terminal
-   sudo mkdir -p /etc/docker/
-   ```
-  
-2. To add `Google` DNS to `Docker`:
-
-   1. [Run in the `VS Code Terminal`](./vs-code.md#run-a-command-in-the-vs-code-terminal):
-
-      ```terminal
-      echo '{"dns": ["8.8.8.8", "8.8.4.4"]}' \
-      | jq . \
-      | sudo tee /etc/docker/daemon.json
-      ```
-
-      The output should look like this:
-
-      ```json
-      {
-        "dns": [
-          "8.8.8.8",
-          "8.8.4.4"
-        ]
-      }
-      ```
-
-   2. [Type the password for the user `<user>`](./vm-access.md#type-the-password-for-the-user-user-remote).
-
-3. To restart the `docker` service,
-
-   [run in the `VS Code Terminal`](./vs-code.md#run-a-command-in-the-vs-code-terminal):
-
-   ```terminal
-   sudo systemctl restart docker
-   ```
+1. [Add the user `admin` to the group `docker` (REMOTE)](./vm-access.md#add-the-user-user-to-the-group-docker-remote).
+2. [Exit the current shell session (REMOTE)](./shell.md#exit-the-shell-session).
+3. [Connect to the VM as the user `admin` (LOCAL)](./vm-access.md#connect-to-the-vm-as-the-user-user-local).
+4. [Enter the repository directory (REMOTE)](./vm-access.md#enter-the).
