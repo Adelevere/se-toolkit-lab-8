@@ -125,6 +125,8 @@ The [username](#bot-username) of your bot.
    uv run --env-file .env.bot.secret python bot/bot.py
    ```
 
+   See [`.env.bot.secret`](./dotenv-bot-secret.md).
+
 #### Start the bot via `uv run poe`
 
 1. To start the bot,
