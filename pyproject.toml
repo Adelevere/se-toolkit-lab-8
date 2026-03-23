@@ -100,7 +100,8 @@ cmd = "python client-telegram-bot/bot.py --test"
 envfile = "client-telegram-bot/.env.secret"
 
 [tool.pyright]
-include = ["backend", "client-telegram-bot"]
+include = ["backend", "client-telegram-bot", "scripts"]
+extraPaths = ["backend"]
 exclude = ["**/__pycache__", "**/node_modules", "**/.*", ".venv", ".direnv"]
 typeCheckingMode = "strict"
 reportAssignmentType = "none"
