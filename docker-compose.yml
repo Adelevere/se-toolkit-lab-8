@@ -98,6 +98,7 @@ services:
       - client-web-react
       - client-web-flutter
       - nanobot
+      - qwen-code-api
     environment:
       - CADDY_CONTAINER_PORT=${CADDY_CONTAINER_PORT:?'CADDY_CONTAINER_PORT is required'}
       - BACKEND_CONTAINER_PORT=${BACKEND_CONTAINER_PORT:?'BACKEND_CONTAINER_PORT is required'}
@@ -130,6 +131,43 @@ services:
       - NANOBOT_PROVIDERS__CUSTOM__API_BASE=${LLM_API_BASE_URL:?'LLM_API_BASE_URL is required'}
     depends_on:
       - backend
+
+  qwen-code-api:
+    build:
+      context: ./qwen-code-api
+      args:
+        REGISTRY_PREFIX_DOCKER_HUB: ${REGISTRY_PREFIX_DOCKER_HUB:-harbor.pg.innopolis.university/docker-hub-cache/}
+    restart: unless-stopped
+    networks:
+      - lms-network
+    ports:
+      - ${QWEN_CODE_API_HOST_ADDRESS:?'QWEN_CODE_API_HOST_ADDRESS is required'}:${QWEN_CODE_API_HOST_PORT:?'QWEN_CODE_API_HOST_PORT is required'}:${QWEN_CODE_API_CONTAINER_PORT:-8080}
+    volumes:
+      - ~/.qwen:/mnt/qwen-creds:ro
+    environment:
+      - PORT=${QWEN_CODE_API_CONTAINER_PORT:-8080}
+      - ADDRESS=${QWEN_CODE_API_CONTAINER_ADDRESS:-0.0.0.0}
+      - LOG_LEVEL=${QWEN_CODE_API_LOG_LEVEL:-error}
+      - MAX_RETRIES=${QWEN_CODE_API_MAX_RETRIES:-5}
+      - RETRY_DELAY_MS=${QWEN_CODE_API_RETRY_DELAY_MS:-1000}
+      - QWEN_CODE_AUTH_USE=${QWEN_CODE_AUTH_USE:-true}
+      - QWEN_CODE_API_KEY=${QWEN_CODE_API_KEY:-}
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - "-c"
+        - |
+          import urllib.request
+          req = urllib.request.Request(
+              'http://localhost:${QWEN_CODE_API_CONTAINER_PORT:-8080}/health',
+              headers={'X-API-Key': '${QWEN_CODE_API_KEY:-}'}
+          )
+          urllib.request.urlopen(req)
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
 
   client-telegram-bot:
     build:
