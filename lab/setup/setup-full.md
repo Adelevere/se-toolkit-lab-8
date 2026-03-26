@@ -283,11 +283,11 @@ See [tools](../../wiki/software-types.md#tool).
 1. [Set up the `Qwen Code` API on your VM](../../wiki/qwen-code-api-deployment.md#deploy-the-qwen-code-api-remote).
 2. [Check that the `Qwen Code` API is accessible on your local machine (LOCAL)](../../wiki/qwen-code-api.md#check-that-the-qwen-code-api-is-accessible).
 
-### 1.16. Set up the `Telegram` bot
+### 1.16. Optional: create a `Telegram` bot token
 
 1. [Create a `Telegram` bot](../../wiki/bot.md#create-a-telegram-bot).
-2. [Configure the environment for the bot on your VM (REMOTE)](../../wiki/client-telegram-bot.md#configure-the-environment-remote).
-3. [Install `uv` (REMOTE)](../../wiki/python.md#install-uv).
+2. You do not need to deploy the bot during setup.
+3. If you later do Lab 8 Optional Task 1, follow the task instructions there and the README in the external `nanobot-websocket-channel/client-telegram-bot/` repo.
 
 ### 1.17. Set up the `Autochecker` bot
 

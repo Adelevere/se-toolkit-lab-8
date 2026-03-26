@@ -293,9 +293,7 @@ Default: `<bot-token>`
 
 ## LLM API
 
-<!-- TODO powers clients, not just bot -->
-
-Variables for the [LLM API](./llm-api.md#about-llm-api) that powers the [`Telegram` bot client](./client-telegram-bot.md#about-the-telegram-bot-client).
+Variables for the [LLM API](./llm-api.md#about-llm-api) used by the deployed `Nanobot` agent and related tooling.
 
 ### `LLM_API_KEY`
 

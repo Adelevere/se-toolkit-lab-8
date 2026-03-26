@@ -17,7 +17,22 @@ In Task 1 you ran `nanobot agent` from the VM terminal. For production, nanobot 
 
 ### What to do
 
-1. Your `nanobot/` directory needs a few more files for Docker deployment:
+1. Create a repo-local `nanobot/` project from the config and workspace you built in Task 1:
+
+   ```terminal
+   uv init nanobot
+   cd nanobot
+   uv add nanobot-ai --path ../packages/nanobot-ai
+   uv add lms-mcp --path ../mcp
+   cp ~/.nanobot/config.json ./config.json
+   cp -R ~/.nanobot/workspace ./workspace
+   cd ..
+   ```
+
+   From this point on, treat `nanobot/` inside the repository as the deployable copy of your agent project.
+   When you change agent config or skills for the Docker deployment, edit the files in `nanobot/`.
+
+2. Your repo-local `nanobot/` directory needs a few more files for Docker deployment:
 
    - **`entrypoint.py`** — resolves environment variables (LLM API key, host/port, backend URL) into the config at runtime, then launches `nanobot gateway`. This is needed because Docker passes config via env vars, not by editing files.
 
@@ -25,7 +40,7 @@ In Task 1 you ran `nanobot agent` from the VM terminal. For production, nanobot 
 
    - **`Dockerfile`** — multi-stage build with `uv` (same pattern as `backend/Dockerfile`). Final CMD: `python /app/nanobot/entrypoint.py`.
 
-2. Add a `nanobot` service to `docker-compose.yml`:
+3. Add a `nanobot` service to `docker-compose.yml`:
 
    Use main's nanobot service as reference — it needs:
    - Build context `./nanobot` with `additional_contexts: workspace: .` (so it can access `mcp/` and root `pyproject.toml`)
@@ -33,7 +48,7 @@ In Task 1 you ran `nanobot agent` from the VM terminal. For production, nanobot 
    - `depends_on: backend`
    - Network: `lms-network`
 
-3. Add a `/ws/chat` route to `caddy/Caddyfile`:
+4. Add a `/ws/chat` route to `caddy/Caddyfile`:
 
    ```
    handle /ws/chat {
@@ -43,16 +58,17 @@ In Task 1 you ran `nanobot agent` from the VM terminal. For production, nanobot 
 
    Add `nanobot` to caddy's `depends_on` and `NANOBOT_WEBCHAT_CONTAINER_PORT` to its environment.
 
-4. Deploy:
+5. Deploy:
 
    ```terminal
    docker compose --env-file .env.docker.secret up --build -d
    ```
 
-5. Test via WebSocket through Caddy:
+6. Check that the service starts cleanly:
 
    ```terminal
-   echo '{"content":"What labs are available?"}' | websocat ws://localhost:42002/ws/chat
+   docker compose --env-file .env.docker.secret ps
+   docker compose --env-file .env.docker.secret logs nanobot --tail 50
    ```
 
 <!-- STOP -->
@@ -67,8 +83,8 @@ In Task 1 you ran `nanobot agent` from the VM terminal. For production, nanobot 
 ### Checkpoint
 
 1. `docker compose --env-file .env.docker.secret ps` — nanobot service is running.
-2. WebSocket responds with real LMS data when you ask about labs.
-3. Paste the response into `REPORT.md` under `## Task 2A — Deployed agent`.
+2. `docker compose --env-file .env.docker.secret logs nanobot --tail 50` shows the gateway started without crashing.
+3. Paste a short startup log excerpt into `REPORT.md` under `## Task 2A — Deployed agent`.
 
 ---
 
@@ -134,7 +150,19 @@ Both are in a single repository. The webchat plugin handles:
    }
    ```
 
-6. Redeploy and open `http://localhost:42002/flutter` in a browser. Log in with your `NANOBOT_ACCESS_KEY`. Start by asking the agent:
+6. Redeploy:
+
+   ```terminal
+   docker compose --env-file .env.docker.secret up --build -d
+   ```
+
+7. Test the WebSocket endpoint through Caddy with the deployment access key:
+
+   ```terminal
+   echo '{"content":"What labs are available?"}' | websocat "ws://localhost:42002/ws/chat?access_key=YOUR_NANOBOT_ACCESS_KEY"
+   ```
+
+8. Open `http://localhost:42002/flutter` in a browser. Log in with your `NANOBOT_ACCESS_KEY`. Start by asking the agent:
 
    - `What can you do in this system?`
    - One quiz or LMS/system question of your choice
@@ -150,16 +178,17 @@ Both are in a single repository. The webchat plugin handles:
 
 ### Checkpoint
 
-1. Open `http://localhost:42002/flutter` — you should see a login screen.
-2. Log in with your `NANOBOT_ACCESS_KEY`, ask `What can you do in this system?`, then ask one question from the quiz question bank.
-3. Screenshot the conversation and add it to `REPORT.md` under `## Task 2B — Web client`.
+1. `websocat "ws://localhost:42002/ws/chat?access_key=YOUR_NANOBOT_ACCESS_KEY"` returns a real agent response.
+2. Open `http://localhost:42002/flutter` — you should see a login screen.
+3. Log in with your `NANOBOT_ACCESS_KEY`, ask `What can you do in this system?`, then ask one question from the quiz question bank.
+4. Screenshot the conversation and add it to `REPORT.md` under `## Task 2B — Web client`.
 
 ---
 
 ## Acceptance criteria
 
 - Nanobot runs as a Docker Compose service via `nanobot gateway`.
-- The WebSocket endpoint at `/ws/chat` responds.
+- After the webchat channel is installed, the WebSocket endpoint at `/ws/chat` responds when called with the correct `access_key`.
 - The webchat channel plugin is installed and the Flutter client connects through it.
 - The Flutter web client is accessible at `/flutter` and protected by a student-chosen `NANOBOT_ACCESS_KEY`.
 - `REPORT.md` contains responses from both checkpoints.

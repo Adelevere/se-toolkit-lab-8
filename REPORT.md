@@ -16,7 +16,7 @@ Paste your checkpoint evidence below. Add screenshots as image files in the repo
 
 ## Task 2A — Deployed agent
 
-<!-- Paste the WebSocket response showing the agent works through Caddy -->
+<!-- Paste a short nanobot startup log excerpt showing the gateway started inside Docker -->
 
 ## Task 2B — Web client
 

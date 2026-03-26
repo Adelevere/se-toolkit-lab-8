@@ -48,7 +48,7 @@ It authenticates to the LMS with the deployment's own `NANOBOT_LMS_API_KEY` / `L
 Both the [`Telegram` bot client](./client-telegram-bot.md#about-the-telegram-bot-client) and the `Flutter` web app connect to the same `Nanobot` instance over the [webchat channel](#webchat-channel).
 
 - The [`Telegram` bot client](./client-telegram-bot.md#about-the-telegram-bot-client) forwards free-text messages to `Nanobot` via [`WebSocket`](./websocket.md#what-is-websocket).
-  Slash commands (e.g., `/scores`, `/labs`) are handled directly by the bot without involving `Nanobot`.
+  Local session commands such as `/start`, `/help`, `/login`, and `/logout` are handled directly by the bot.
 - The `Flutter` web app connects to the webchat channel directly and authenticates with the deployment access key.
 
 The [`WebSocket` URL](./websocket.md#websocket-url) is configured by [`NANOBOT_WS_URL`](./dotenv-docker-secret.md#nanobot_ws_url) in [`.env.docker.secret`](./dotenv-docker-secret.md#what-is-envdockersecret).

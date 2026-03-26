@@ -45,6 +45,7 @@ Start by reading the [official nanobot repository](https://github.com/HKUDS/nano
    - **Default model:** `coder-model`
 
    This generates `~/.nanobot/config.json` and a workspace at `~/.nanobot/workspace`.
+   In Task 2 you will copy these into a repo-local `nanobot/` project for Docker deployment.
 
 4. Chat with the agent in the terminal on your VM:
 
@@ -147,7 +148,7 @@ The agent works, but it could be smarter about *how* it uses tools. A **skill pr
 
 ### What to do
 
-1. Write a skill prompt at `nanobot/workspace/skills/lms/SKILL.md` (or wherever your workspace is located).
+1. Write a skill prompt in your nanobot workspace, for example at `~/.nanobot/workspace/skills/lms/SKILL.md`.
 
    The skill should teach the agent:
    - Which `mcp_lms_*` tools are available and when to use each one

@@ -68,14 +68,14 @@ Students set up nanobot from scratch — same way they would in their own projec
 
 **Part B — Give the agent LMS tools.** Students register provided `mcp/mcp_lms/` in config, write skill prompt. Agent now returns real data. Students compare bare vs equipped responses.
 
-**Part C — Add a chat client.** Flutter client code is provided in `client-web-flutter/`. Students wire it into compose + Caddy (add service, volume, route). Docker builds it (no Flutter SDK needed). Students chat via browser UI.
+**Part C — Add a chat client.** Flutter client code is provided in the external `nanobot-websocket-channel` repo. Students add it as a submodule in Task 2, then wire it into compose + Caddy (add service, volume, route). Docker builds it (no Flutter SDK needed). Students chat via browser UI.
 
 **Autochecker checks:**
 
 | Check | How |
 |---|---|
 | Nanobot service running | `docker compose ps --format json` → nanobot status "running" |
-| WebSocket responds | Send `{"content":"hello"}` via `websocat ws://localhost:42002/ws/chat` → JSON response |
+| WebSocket responds | Send `{"content":"hello"}` via `websocat "ws://localhost:42002/ws/chat?access_key=..."` → JSON response |
 | Agent has LMS tools | Send `{"content":"what labs are available?"}` → response contains real lab names (e.g., "lab-01") |
 | Agent answers quiz question | Send `{"content":"Describe the architecture of the LMS system"}` → mentions "backend", "PostgreSQL" |
 | Flutter client serves | `curl -s -o /dev/null -w '%{http_code}' http://localhost:42002/flutter/` → 200 |
@@ -83,7 +83,7 @@ Students set up nanobot from scratch — same way they would in their own projec
 
 ---
 
-### Task 2 — Give the Agent New Eyes (Observability)
+### Task 3 — Give the Agent New Eyes (Observability)
 
 Students learn to read existing observability data, then give the agent the same ability by writing MCP tools. The backend already has structured logging via OpenTelemetry — students explore it, don't implement it.
 
@@ -102,11 +102,11 @@ Students learn to read existing observability data, then give the agent the same
 | Error-path sequence | Stop postgres, trigger request, parse logs for `db_query` with `level: "error"` |
 | Observability tools work | Send `{"content":"any errors in the last hour?"}` → response NOT "I don't have access to logs" |
 | Agent uses log tools under failure | Same query after stopping postgres → response contains specific error details |
-| REPORT.md sections | `## Task 2A`, `## Task 2B`, `## Task 2C` exist with non-empty content |
+| REPORT.md sections | `## Task 3A`, `## Task 3B`, `## Task 3C` exist with non-empty content |
 
 ---
 
-### Task 3 — Diagnose and Fix a Bug Using the Agent
+### Task 4 — Diagnose and Fix a Bug Using the Agent
 
 Instructor deploys backend with a planted bug. Students use the agent to investigate: "show me recent errors" → "get that trace" → "what service failed?" Students fix the bug, redeploy, verify with agent.
 
@@ -115,11 +115,11 @@ Instructor deploys backend with a planted bug. Students use the agent to investi
 | Check | How |
 |---|---|
 | Bug is fixed | `curl` the broken endpoint → returns 200 (not 500) |
-| Investigation documented | `REPORT.md` has `## Task 3` with conversation transcript, root cause, fix |
+| Investigation documented | `REPORT.md` has `## Task 4` with conversation transcript, root cause, fix |
 
 ---
 
-### Task 4 — Make the Agent Proactive
+### Task 5 — Make the Agent Proactive
 
 **Part A — Multi-step skill.** Students enhance observability skill to chain log → trace queries autonomously. Agent produces coherent summary for "what went wrong?" in a single response.
 
@@ -131,7 +131,7 @@ Instructor deploys backend with a planted bug. Students use the agent to investi
 |---|---|
 | Multi-step skill works | Stop postgres, send `{"content":"what went wrong?"}` → response mentions both log AND trace data |
 | Cron config exists | `nanobot/cron/jobs.json` is valid JSON with `agent_turn` entry and `schedule` field |
-| REPORT.md sections | `## Task 4A`, `## Task 4B` exist with non-empty content |
+| REPORT.md sections | `## Task 5A`, `## Task 5B` exist with non-empty content |
 
 ---
 
@@ -180,7 +180,7 @@ Trace database. When a request flows through multiple services, each step is a s
 
 Main branch = working LMS with no agent. Students create `nanobot/` from scratch.
 
-**Provided:** backend, postgres, caddy, react, qwen-code-api (submodule + compose service), VictoriaLogs/Traces/OTel (in compose), `mcp/mcp_lms/` (provided tools, not wired), Flutter client (external repo, added as submodule in Task 1C).
+**Provided:** backend, postgres, caddy, react, qwen-code-api (submodule + compose service), VictoriaLogs/Traces/OTel (in compose), `mcp/mcp_lms/` (provided tools, not wired), Flutter client (external repo, added as submodule in Task 2).
 
 **Created by students:** `nanobot/` directory (pyproject.toml, config.json, entrypoint.py, Dockerfile), compose services, Caddy routes, skill prompts, structured logging, observability MCP tools, bug fix, cron config, REPORT.md.
 

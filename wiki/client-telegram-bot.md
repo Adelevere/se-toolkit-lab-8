@@ -3,137 +3,43 @@
 <h2>Table of contents</h2>
 
 - [About the `Telegram` bot client](#about-the-telegram-bot-client)
-- [Deploy the bot on the VM](#deploy-the-bot-on-the-vm)
-  - [Configure the environment (REMOTE)](#configure-the-environment-remote)
-  - [Start the bot](#start-the-bot)
-    - [Start the bot via `uv run python`](#start-the-bot-via-uv-run-python)
-    - [Start the bot via `uv run poe`](#start-the-bot-via-uv-run-poe)
-    - [Start the bot via `Docker Compose`](#start-the-bot-via-docker-compose)
-  - [Check the bot](#check-the-bot)
-    - [Check the bot via `uv run python`](#check-the-bot-via-uv-run-python)
-    - [Check the bot via `uv run poe`](#check-the-bot-via-uv-run-poe)
-    - [Check the bot in `Telegram`](#check-the-bot-in-telegram)
+- [Where the code lives](#where-the-code-lives)
+- [Environment variables](#environment-variables)
+- [How it fits into Lab 8](#how-it-fits-into-lab-8)
 
 ## About the `Telegram` bot client
 
-The `Telegram` bot client is a standalone [Python](./python.md#what-is-python) service built with `aiogram` that connects the [`Telegram`](./bot.md#about-telegram-bots) messaging interface to the [`Nanobot`](./nanobot.md#about-nanobot) AI agent.
-
-The source code is in the [`client-telegram-bot/`](../client-telegram-bot/) directory.
+The `Telegram` bot client is a standalone [Python](./python.md#what-is-python) service built with `aiogram` that connects the [`Telegram`](./bot.md#about-telegram-bots) messaging interface to the [`Nanobot`](./nanobot.md#about-nanobot) AI agent over the webchat `WebSocket` channel.
 
 Docs:
 
 - [aiogram documentation](https://docs.aiogram.dev/en/latest/)
 
-## Deploy the bot on the VM
+## Where the code lives
 
-1. [Connect to the VM as the user `admin` (LOCAL)](./vm-access.md#connect-to-the-vm-as-the-user-user-local).
-2. [Install `uv` (REMOTE)](./python.md#install-uv).
-3. [Set up the lab repository directory (REMOTE)](./lab.md#set-up-the-lab-repository-directory).
-4. [Configure the environment (REMOTE)](#configure-the-environment-remote).
-5. [Start the bot (REMOTE)](#start-the-bot).
-6. [Check the bot (REMOTE)](#check-the-bot-via-uv-run-poe).
-7. [Check the bot in `Telegram`](#check-the-bot-in-telegram).
+The bot source code is not stored in this lab repository anymore.
+It lives in the standalone `nanobot-websocket-channel` repository:
 
-### Configure the environment (REMOTE)
+<https://github.com/inno-se-toolkit/nanobot-websocket-channel/tree/main/client-telegram-bot>
 
-1. To open [`.env.docker.secret`](./dotenv-docker-secret.md#what-is-envdockersecret) for editing,
+That repo also contains the current Dockerfile, README, and local run instructions for the bot.
 
-   [run in the `VS Code Terminal`](./vs-code.md#run-a-command-in-the-vs-code-terminal):
+## Environment variables
 
-   ```terminal
-   nano .env.docker.secret
-   ```
+The current bot expects these variables:
 
-2. [Set the variables in `.env.docker.secret`](./environments.md#set-the-variable-to-value-in-the-env-file-at-file-path):
+- [`BOT_TOKEN`](./dotenv-docker-secret.md#bot_token) — Telegram bot token from `@BotFather`
+- [`NANOBOT_WS_URL`](./dotenv-docker-secret.md#nanobot_ws_url) — `WebSocket` URL for the deployed `Nanobot` channel
+- [`NANOBOT_ACCESS_KEY`](./dotenv-docker-secret.md#nanobot_access_key) — deployment access key required by the webchat channel
 
-   - [`BOT_TOKEN`](./dotenv-docker-secret.md#bot_token)
-   - [`GATEWAY_BASE_URL`](./dotenv-docker-secret.md#gateway_base_url)
-   - [`LMS_API_KEY`](./dotenv-docker-secret.md#lms_api_key)
-   - [`LLM_API_KEY`](./dotenv-docker-secret.md#llm_api_key)
-   - [`LLM_API_BASE_URL`](./dotenv-docker-secret.md#llm_api_base_url)
-   - [`LLM_API_MODEL`](./dotenv-docker-secret.md#llm_api_model)
+If you want the Telegram client to remain LMS-specific, users can still provide a per-user LMS key with `/login <api_key>`.
 
-3. Save and close the file.
+## How it fits into Lab 8
 
-### Start the bot
+In Lab 8 this bot is optional.
+The required path uses the Flutter web client, while the Telegram bot demonstrates that the same agent can serve multiple frontends.
 
-<!-- no toc -->
-- Method 1: [Start the bot via `uv run python`](#start-the-bot-via-uv-run-python)
-- Method 2: [Start the bot via `uv run poe`](#start-the-bot-via-uv-run-poe)
-- Method 3: [Start the bot via `Docker Compose`](#start-the-bot-via-docker-compose)
+For the lab workflow, follow [Optional Task 1](../lab/tasks/optional/task-1.md).
 
-#### Start the bot via `uv run python`
-
-1. To start the bot,
-
-   [run in the `VS Code Terminal`](./vs-code.md#run-a-command-in-the-vs-code-terminal):
-
-   ```terminal
-   uv run --env-file .env.docker.secret python bot/bot.py
-   ```
-
-   See [`.env.docker.secret`](./dotenv-docker-secret.md).
-
-#### Start the bot via `uv run poe`
-
-1. To start the bot,
-
-   [run in the `VS Code Terminal`](./vs-code.md#run-a-command-in-the-vs-code-terminal):
-
-   ```terminal
-   uv run poe bot
-   ```
-
-   This loads the environment variables from [`.env.docker.secret`](./dotenv-docker-secret.md) automatically.
-
-#### Start the bot via `Docker Compose`
-
-1. To start the bot,
-
-   [run in the `VS Code Terminal`](./vs-code.md#run-a-command-in-the-vs-code-terminal):
-
-   ```terminal
-   docker compose up --env-file .env.docker.secret bot --build -d
-   ```
-
-### Check the bot
-
-- Method 1: [Check the bot via `uv run python`](#check-the-bot-via-uv-run-python)
-- Method 2: [Check the bot via `uv run poe`](#check-the-bot-via-uv-run-poe)
-- Method 3: [Check the bot in `Telegram`](#check-the-bot-in-telegram)
-
-#### Check the bot via `uv run python`
-
-1. To check that the bot is working,
-
-   [run in the `VS Code Terminal`](./vs-code.md#run-a-command-in-the-vs-code-terminal):
-
-   ```terminal
-   uv run --env-file .env.docker.secret python bot/bot.py --test "/health"
-   ```
-
-   You should see a response from the bot.
-
-#### Check the bot via `uv run poe`
-
-1. To check that the bot is working,
-
-   [run in the `VS Code Terminal`](./vs-code.md#run-a-command-in-the-vs-code-terminal):
-
-   ```terminal
-   uv run poe bot-test "/health"
-   ```
-
-   This loads the environment variables from [`.env.docker.secret`](./dotenv-docker-secret.md) automatically.
-
-   You should see a response from the bot.
-
-#### Check the bot in `Telegram`
-
-1. Open `Telegram`.
-
-2. Find your bot by [your bot username](./bot.md#your-bot-username).
-
-3. Send `/health`.
-
-   You should see a response from your bot.
+> [!NOTE]
+> The Telegram Bot API is blocked from many Russian servers. The bot may need to run locally or on a non-Russian host even though it talks to `Nanobot` over the local Docker network.
