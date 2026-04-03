@@ -6,12 +6,10 @@ requires-python = ">=3.14.2, <3.15"
 members = [
     "lms-backend",
     "mcp-lms",
-    "mcp-obs",
     "mcp-webchat",
     "nanobot",
     "nanobot-channel-protocol",
     "nanobot-webchat",
-    "qwen-code-api",
 ]
 
 [manifest.dependency-groups]
@@ -934,23 +932,6 @@ requires-dist = [
 ]
 
 [[package]]
-name = "mcp-obs"
-version = "0.1.0"
-source = { editable = "mcp/mcp-obs" }
-dependencies = [
-    { name = "httpx" },
-    { name = "mcp" },
-    { name = "pydantic" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "httpx", specifier = ">=0.27.0" },
-    { name = "mcp", specifier = ">=1.0.0" },
-    { name = "pydantic", specifier = ">=2.0.0" },
-]
-
-[[package]]
 name = "mcp-webchat"
 version = "0.1.0"
 source = { editable = "nanobot-websocket-channel/mcp-webchat" }
@@ -1053,7 +1034,6 @@ version = "0.1.0"
 source = { editable = "nanobot" }
 dependencies = [
     { name = "mcp-lms" },
-    { name = "mcp-obs" },
     { name = "mcp-webchat" },
     { name = "nanobot-ai" },
     { name = "nanobot-webchat" },
@@ -1067,7 +1047,6 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "mcp-lms", editable = "mcp/mcp-lms" },
-    { name = "mcp-obs", editable = "mcp/mcp-obs" },
     { name = "mcp-webchat", editable = "nanobot-websocket-channel/mcp-webchat" },
     { name = "nanobot-ai", url = "https://github.com/HKUDS/nanobot/archive/e7d371ec1e6531b28898ec2c869ef338e8dd46ec.zip" },
     { name = "nanobot-webchat", editable = "nanobot-websocket-channel/nanobot-webchat" },
@@ -1938,52 +1917,17 @@ wheels = [
 ]
 
 [[package]]
-name = "qwen-code-api"
-version = "0.1.0"
-source = { editable = "qwen-code-api" }
+name = "readability-lxml"
+version = "0.8.4.1"
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "fastapi" },
-    { name = "httpx" },
-    { name = "opentelemetry-distro", extra = ["otlp"] },
-    { name = "opentelemetry-exporter-otlp-proto-grpc" },
-    { name = "opentelemetry-instrumentation-fastapi" },
-    { name = "opentelemetry-instrumentation-httpx" },
-    { name = "opentelemetry-instrumentation-logging" },
-    { name = "pydantic-settings" },
-    { name = "uvicorn", extra = ["standard"] },
+    { name = "chardet" },
+    { name = "cssselect" },
+    { name = "lxml", extra = ["html-clean"] },
 ]
-
-[package.dev-dependencies]
-dev = [
-    { name = "poethepoet" },
-    { name = "pyright" },
-    { name = "pytest" },
-    { name = "pytest-asyncio" },
-    { name = "ruff" },
-    { name = "ty" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "fastapi", specifier = ">=0.115.12" },
-    { name = "httpx", specifier = ">=0.28.1" },
-    { name = "opentelemetry-distro", extras = ["otlp"], specifier = ">=0.61b0" },
-    { name = "opentelemetry-exporter-otlp-proto-grpc", specifier = ">=1.40.0" },
-    { name = "opentelemetry-instrumentation-fastapi", specifier = ">=0.61b0" },
-    { name = "opentelemetry-instrumentation-httpx", specifier = ">=0.61b0" },
-    { name = "opentelemetry-instrumentation-logging", specifier = ">=0.61b0" },
-    { name = "pydantic-settings", specifier = ">=2.0.0" },
-    { name = "uvicorn", extras = ["standard"], specifier = ">=0.34.3" },
-]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "poethepoet", specifier = "==0.42.1" },
-    { name = "pyright", specifier = "==1.1.408" },
-    { name = "pytest", specifier = "==9.0.2" },
-    { name = "pytest-asyncio", specifier = "==1.3.0" },
-    { name = "ruff", specifier = "==0.15.8" },
-    { name = "ty", specifier = "==0.0.26" },
+sdist = { url = "https://files.pythonhosted.org/packages/55/3e/dc87d97532ddad58af786ec89c7036182e352574c1cba37bf2bf783d2b15/readability_lxml-0.8.4.1.tar.gz", hash = "sha256:9d2924f5942dd7f37fb4da353263b22a3e877ccf922d0e45e348e4177b035a53", size = 22874, upload-time = "2025-05-03T21:11:45.493Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c7/75/2cc58965097e351415af420be81c4665cf80da52a17ef43c01ffbe2caf91/readability_lxml-0.8.4.1-py3-none-any.whl", hash = "sha256:874c0cea22c3bf2b78c7f8df831bfaad3c0a89b7301d45a188db581652b4b465", size = 19912, upload-time = "2025-05-03T21:11:43.993Z" },
 ]
 
 [[package]]

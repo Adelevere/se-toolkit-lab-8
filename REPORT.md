@@ -205,54 +205,7 @@ What would you like to know?
 - ✅ Agent responds to messages through WebChat channel
 - ✅ Access key authentication working
 
-
-## Task 3A — Structured logging
-
-### Successful request (200 OK)
-
-2026-04-03 06:55:59,883 INFO - request_started
-2026-04-03 06:55:59,884 INFO - auth_success
-2026-04-03 06:55:59,884 INFO - db_query
-2026-04-03 06:56:00,338 INFO - request_completed
-INFO: "GET /items/ HTTP/1.1" 200
-
-
-### Failed request (PostgreSQL stopped)
-
-2026-04-02 21:46:06,704 INFO - request_started
-2026-04-02 21:46:06,705 INFO - auth_success
-2026-04-02 21:46:06,706 INFO - db_query
-2026-04-02 21:46:06,806 ERROR - db_query
-INFO: "GET /items/ HTTP/1.1" 404
-
-### VictoriaLogs
-Query: `_time:1h service.name:"Learning Management Service" severity:ERROR`
-
-![VictoriaLogs](screenshots/victorialogs.png)
-
-## Task 3B — Traces
-
-![Trace error](screenshots/trace-error.png)
-![Empty items](screenshots/empty-items.png)
-
-## Task 3C — Observability MCP tools
-
-### Normal conditions (PostgreSQL running):
-
-**Question:** "Any LMS backend errors in the last 10 minutes?"
-**Agent response:** "No errors found for the Learning Management Service in the last 10 minutes. The backend looks clean! ✅"
-The agent correctly queried VictoriaLogs using the full service name `"Learning Management Service"` and found 0 errors.The agent correctly queried VictoriaLogs using the full service name `"Learning Management Service"` and found 0 errors.
-
-### Failure conditions (PostgreSQL stopped):
-
-After stopping PostgreSQL and triggering a few requests through the Flutter app:
-
-**Question:** "Any LMS backend errors in the last 10 minutes?"
-
-**Agent response:** "Yes, there are 2 errors for the LMS backend in the last 10 minutes. Both are database connectivity issues."
-
-The agent identified the errors by calling `obs_logs_error_count` with the correct service name and reported the database connectivity failures caused by stopping PostgreSQL.
-
+---
 
 ## Summary
 
