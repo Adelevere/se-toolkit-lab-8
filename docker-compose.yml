@@ -194,7 +194,7 @@ services:
     ports:
       - ${QWEN_CODE_API_HOST_ADDRESS:?'QWEN_CODE_API_HOST_ADDRESS is required'}:${QWEN_CODE_API_HOST_PORT:?'QWEN_CODE_API_HOST_PORT is required'}:${QWEN_CODE_API_CONTAINER_PORT:?'QWEN_CODE_API_CONTAINER_PORT is required'}
     volumes:
-      - ~/.qwen:/mnt/qwen-creds:ro
+      - ~/.qwen:/root/.qwen:ro
     environment:
       - PORT=${QWEN_CODE_API_CONTAINER_PORT:?'QWEN_CODE_API_CONTAINER_PORT is required'}
       - ADDRESS=${QWEN_CODE_API_CONTAINER_ADDRESS:?'QWEN_CODE_API_CONTAINER_ADDRESS is required'}
