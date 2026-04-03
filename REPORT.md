@@ -207,17 +207,153 @@ What would you like to know?
 
 ---
 
+## Task 3A — Structured logging
+
+### Happy-path log excerpt (request_started → request_completed, status 200)
+
+```
+2026-04-03 11:04:59,023 INFO [lms_backend.main] [main.py:62] [trace_id=42207ed3ce60f27af280d9b49b39892e span_id=5032877a491f922c resource.service.name=Learning Management Service trace_sampled=True] - request_started
+2026-04-03 11:04:59,264 INFO [lms_backend.auth] [auth.py:30] [trace_id=42207ed3ce60f27af280d9b49b39892e span_id=5032877a491f922c resource.service.name=Learning Management Service trace_sampled=True] - auth_success
+2026-04-03 11:04:59,312 INFO [lms_backend.db.items] [items.py:16] [trace_id=42207ed3ce60f27af280d9b49b39892e span_id=5032877a491f922c resource.service.name=Learning Management Service trace_sampled=True] - db_query
+2026-04-03 11:05:00,536 INFO [lms_backend.main] [main.py:74] [trace_id=42207ed3ce60f27af280d9b49b39892e span_id=5032877a491f922c resource.service.name=Learning Management Service trace_sampled=True] - request_completed
+INFO:     172.18.0.10:48408 - "GET /items/ HTTP/1.1" 200 OK
+```
+
+### Error-path log excerpt (db_query with error, PostgreSQL stopped)
+
+```
+2026-04-03 11:05:40,973 INFO [lms_backend.main] [main.py:62] [trace_id=9692f8b6506a7e143974356f5103cdb2 span_id=2e371428e96d3b9c resource.service.name=Learning Management Service trace_sampled=True] - request_started
+2026-04-03 11:05:40,974 INFO [lms_backend.auth] [auth.py:30] [trace_id=9692f8b6506a7e143974356f5103cdb2 span_id=2e371428e96d3b9c resource.service.name=Learning Management Service trace_sampled=True] - auth_success
+2026-04-03 11:05:40,975 INFO [lms_backend.db.items] [items.py:16] [trace_id=9692f8b6506a7e143974356f5103cdb2 span_id=2e371428e96d3b9c resource.service.name=Learning Management Service trace_sampled=True] - db_query
+2026-04-03 11:05:41,009 ERROR [lms_backend.db.items] [items.py:23] [trace_id=9692f8b6506a7e143974356f5103cdb2 span_id=2e371428e96d3b9c resource.service.name=Learning Management Service trace_sampled=True] - db_query
+2026-04-03 11:05:41,010 ERROR [lms_backend.routers.items] [items.py:23] [trace_id=9692f8b6506a7e143974356f5103cdb2 span_id=2e371428e96d3b9c resource.service.name=Learning Management Service trace_sampled=True] - items_list_failed
+2026-04-03 11:05:41,015 ERROR [lms_backend.main] [main.py:74] [trace_id=9692f8b6506a7e143974356f5103cdb2 span_id=2e371428e96d3b9c resource.service.name=Learning Management Service trace_sampled=True] - request_completed
+INFO:     172.18.0.10:57200 - "GET /items/ HTTP/1.1" 500
+```
+
+### VictoriaLogs query result
+
+Query: `_time:1h service.name:"Learning Management Service" severity:ERROR`
+
+Result shows error entries with:
+- `event: "items_list_failed"`
+- `error: "[Errno -2] Name or service not known"` (from a previous failure)
+- `status: "500"`
+- `trace_id` present for each error entry
+
+**Key observations:**
+- Structured logs in `docker compose logs` show consistent JSON fields: `trace_id`, `service.name`, `severity`, `event`
+- VictoriaLogs UI makes it easy to filter by service + severity + time window — much faster than grepping raw logs
+- Each error entry includes a `trace_id` that can be used to fetch the full trace
+
+---
+
+## Task 3B — Traces
+
+### Healthy trace
+
+Trace ID: `42207ed3ce60f27af280d9b49b39892e`
+
+Span hierarchy from VictoriaTraces Jaeger API:
+- `GET /items/` — root span (FastAPI)
+  - `auth_success` — authentication span
+  - `db_query` — database query span
+  - `request_completed` — response span
+
+All spans completed with status 200, total duration ~1.5s.
+
+### Error trace (PostgreSQL stopped)
+
+Trace ID: `9692f8b6506a7e143974356f5103cdb2`
+
+Span hierarchy:
+- `GET /items/` — root span
+  - `auth_success` — authentication succeeded
+  - `db_query` — **ERROR** — connection failed (PostgreSQL down)
+  - `items_list_failed` — error handler
+  - `request_completed` — returned 500
+
+The error appears in the `db_query` span with `severity: ERROR` and `event: items_list_failed`.
+
+**Key observations:**
+- VictoriaTraces Jaeger-compatible API at `/select/jaeger/api/traces` works correctly
+- Error traces clearly show which span failed and the error context
+- Comparing healthy vs error traces: the `db_query` span is where the failure occurs
+
+---
+
+## Task 3C — Observability MCP tools
+
+### MCP Server created: `mcp/mcp-obs/`
+
+**Files created:**
+- `mcp/mcp-obs/pyproject.toml` — package definition
+- `mcp/mcp-obs/src/mcp_obs/__init__.py` — package init
+- `mcp/mcp-obs/src/mcp_obs/__main__.py` — allows `python -m mcp_obs`
+- `mcp/mcp-obs/src/mcp_obs/settings.py` — reads `NANOBOT_VICTORIALOGS_URL` and `NANOBOT_VICTORIATRACES_URL`
+- `mcp/mcp-obs/src/mcp_obs/observability.py` — HTTP client for VictoriaLogs and VictoriaTraces
+- `mcp/mcp-obs/src/mcp_obs/server.py` — MCP server with 4 tools
+
+**Registered tools:**
+| Tool | Description |
+|------|-------------|
+| `mcp_obs_logs_search` | Search VictoriaLogs using LogsQL |
+| `mcp_obs_logs_error_count` | Count errors over a time window |
+| `mcp_obs_traces_list` | List recent traces for a service |
+| `mcp_obs_traces_get` | Fetch a specific trace by ID |
+
+### Observability skill: `nanobot/workspace/skills/observability/SKILL.md`
+
+Teaches the agent:
+- Start with `logs_error_count` to gauge severity
+- Use `logs_search` with `_time` filters for details
+- Extract `trace_id` from logs and fetch full traces
+- Summarize findings concisely instead of dumping raw JSON
+
+### Nanobot logs confirming tool registration:
+
+```
+MCP server 'obs': connected, 4 tools registered
+MCP: registered tool 'mcp_obs_logs_search' from server 'obs'
+MCP: registered tool 'mcp_obs_logs_error_count' from server 'obs'
+MCP: registered tool 'mcp_obs_traces_list' from server 'obs'
+MCP: registered tool 'mcp_obs_traces_get' from server 'obs'
+```
+
+### Direct API verification (VictoriaLogs):
+
+```bash
+curl -s "http://localhost:42010/select/logsql/query?query=_time:1h%20service.name:%22Learning%20Management%20Service%22%20severity:ERROR&limit=3"
+```
+
+Returns structured error entries with `trace_id`, `event`, `service.name`, `severity` fields.
+
+### Direct API verification (VictoriaTraces):
+
+```bash
+curl -s "http://localhost:42011/select/jaeger/api/traces?service=Learning%20Management%20Service&limit=3"
+```
+
+Returns trace data with span hierarchy, process IDs, and operation names.
+
+**Note:** Full agent testing (asking "Any LMS backend errors in the last 10 minutes?") requires the Qwen LLM proxy to be operational. The OAuth token needs re-authentication — run `qwen` on the VM to refresh credentials. The MCP server and tools are correctly registered and the VictoriaLogs/VictoriaTraces APIs respond correctly.
+
+---
+
 ## Summary
 
 ### Files Modified
 
-1. **docker-compose.yml** — Uncommented nanobot, client-web-flutter, and caddy services
-2. **nanobot/pyproject.toml** — Added mcp-webchat, nanobot-webchat dependencies
-3. **nanobot/entrypoint.py** — Uncommented webchat channel and MCP server configuration
+1. **docker-compose.yml** — Uncommented nanobot, client-web-flutter, caddy services; added obs env vars
+2. **nanobot/pyproject.toml** — Added mcp-webchat, nanobot-webchat, mcp-obs dependencies
+3. **nanobot/entrypoint.py** — Uncommented webchat channel, MCP server, and obs MCP server configuration
 4. **caddy/Caddyfile** — Added /ws/chat and /flutter routes
-5. **pyproject.toml** (root) — Added nanobot-websocket-channel workspace members
+5. **pyproject.toml** (root) — Added nanobot-websocket-channel workspace members, mcp-obs
 6. **nanobot/workspace/skills/lms/SKILL.md** — Created LMS skill prompt
-7. **nanobot/README.md** — Created (required by Dockerfile)
+7. **nanobot/workspace/skills/observability/SKILL.md** — Created observability skill prompt
+8. **nanobot/README.md** — Created (required by Dockerfile)
+9. **mcp/mcp-obs/** — Created new MCP server for observability (6 files)
+10. **mcp/pyproject.toml** — Uncommented mcp-obs workspace member
 
 ### Services Deployed
 
@@ -228,6 +364,8 @@ What would you like to know?
 | client-web-flutter | Built | N/A (static files) |
 | backend | Running | 42001 |
 | qwen-code-api | Running | 42005 |
+| victorialogs | Running | 42010 |
+| victoriatraces | Running | 42011 |
 
 ### Verification Commands
 

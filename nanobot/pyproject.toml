@@ -15,8 +15,8 @@ dependencies = [
     # Task 2B — webchat channel.
     "mcp-webchat",
     "nanobot-webchat",
-    # Task 3 — uncomment after you add mcp-obs.
-    # "mcp-obs",
+    # Task 3 — observability MCP server.
+    "mcp-obs",
     "nanobot-ai",
 ]
 
