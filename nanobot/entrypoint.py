@@ -89,15 +89,15 @@ def _resolve_config() -> Config:
         },
     )
     # Task 3 — uncomment after you add mcp-obs.
-    # config.tools.mcp_servers["obs"] = MCPServerConfig(
-    #     command="opentelemetry-instrument",
-    #     args=["python", "-m", "mcp_obs"],
-    #     env={
-    #         "NANOBOT_VICTORIALOGS_URL": env.nanobot_victorialogs_url,
-    #         "NANOBOT_VICTORIATRACES_URL": env.nanobot_victoriatraces_url,
-    #         **_otel_env(env, "mcp-obs"),
-    #     },
-    # )
+    config.tools.mcp_servers["obs"] = MCPServerConfig(
+        command="opentelemetry-instrument",
+        args=["python", "-m", "mcp_obs"],
+        env={
+            "NANOBOT_VICTORIALOGS_URL": env.nanobot_victorialogs_url,
+            "NANOBOT_VICTORIATRACES_URL": env.nanobot_victoriatraces_url,
+            **_otel_env(env, "mcp-obs"),
+        },
+    )
     # Task 2B — webchat channel.
     config.tools.mcp_servers["webchat"] = MCPServerConfig(
         command="opentelemetry-instrument",
