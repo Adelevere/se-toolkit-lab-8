@@ -114,12 +114,21 @@ def create_server(logs_url: str, traces_url: str) -> Server:
                     # VictoriaLogs returns newline-delimited JSON (one JSON object per line)
                     lines = [line.strip() for line in body.split("\n") if line.strip()]
                     results = []
+                    trace_ids_found = []
                     for line in lines:
                         try:
-                            results.append(json.loads(line))
+                            parsed = json.loads(line)
+                            results.append(parsed)
+                            tid = parsed.get("trace_id")
+                            if tid and tid not in trace_ids_found:
+                                trace_ids_found.append(tid)
                         except json.JSONDecodeError:
                             results.append(line)
-                    return _text({"query": args.query, "results": results, "count": len(results)})
+                    result = {"query": args.query, "results": results, "count": len(results)}
+                    if trace_ids_found:
+                        result["trace_ids_found"] = trace_ids_found
+                        result["suggested_next"] = f"Call obs_traces_get with one of these trace_ids to see the full request path: {', '.join(trace_ids_found[:3])}"
+                    return _text(result)
 
                 elif name == "obs_logs_error_count":
                     args = LogsErrorCountQuery.model_validate(arguments or {})
@@ -138,17 +147,26 @@ def create_server(logs_url: str, traces_url: str) -> Server:
                         })
                     lines = [line.strip() for line in body.split("\n") if line.strip()]
                     logs = []
+                    trace_ids = []
                     for line in lines:
                         try:
-                            logs.append(json.loads(line))
+                            parsed = json.loads(line)
+                            logs.append(parsed)
+                            tid = parsed.get("trace_id")
+                            if tid and tid not in trace_ids:
+                                trace_ids.append(tid)
                         except json.JSONDecodeError:
                             logs.append(line)
-                    return _text({
+                    result = {
                         "service": args.service,
                         "time_window": args.time_window,
                         "error_count": len(logs),
                         "sample_errors": logs[:5],
-                    })
+                    }
+                    if trace_ids:
+                        result["trace_ids"] = trace_ids[:5]
+                        result["next_step"] = f"IMPORTANT: Call obs_traces_get with trace_id='{trace_ids[0]}' to see the full request path and confirm the root cause."
+                    return _text(result)
 
                 elif name == "obs_traces_list":
                     args = TraceQuery.model_validate(arguments or {})
