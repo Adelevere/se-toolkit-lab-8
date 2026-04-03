@@ -207,6 +207,132 @@ What would you like to know?
 
 ---
 
+## Task 3A — Structured logging
+
+### Happy-path log excerpt (request_started → request_completed, status 200)
+
+> **Student action:** Run `docker compose --env-file .env.docker.secret logs backend --tail 30` after making a successful request through the Flutter app.
+> Paste a log excerpt showing the happy path below.
+
+```json
+// TODO: Paste structured log excerpt here showing:
+// - "event": "request_started"
+// - "event": "auth_success"
+// - "event": "db_query"
+// - "event": "request_completed" with status 200
+// Example format (replace with actual logs):
+// {"timestamp": "...", "level": "info", "service.name": "Learning Management Service", "event": "request_started", "trace_id": "..."}
+// {"timestamp": "...", "level": "info", "service.name": "Learning Management Service", "event": "request_completed", "status": 200, "trace_id": "..."}
+```
+
+### Error-path log excerpt (db_query with error after stopping postgres)
+
+> **Student action:** Run `docker compose --env-file .env.docker.secret stop postgres`, then make a request, then check logs.
+> Paste the error log excerpt below.
+
+```json
+// TODO: Paste structured log excerpt showing:
+// - "event": "db_query" with error
+// - "level": "error" or "severity": "ERROR"
+// - "event": "request_completed" with non-200 status (404, 500, etc.)
+// Example format (replace with actual logs):
+// {"timestamp": "...", "level": "error", "service.name": "Learning Management Service", "event": "db_query", "error": "connection refused", "trace_id": "..."}
+```
+
+### VictoriaLogs UI screenshot
+
+> **Student action:** Open `http://<your-vm-ip>:42002/utils/victorialogs/select/vmui` and run a query like:
+> `_time:10m service.name:"Learning Management Service" severity:ERROR`
+> Take a screenshot and paste it below.
+
+![VictoriaLogs query result](TODO: Add screenshot of VictoriaLogs UI showing filtered error logs)
+
+**Query used:** `_time:10m service.name:"Learning Management Service" severity:ERROR`
+
+**Key observations:**
+- Structured logs are JSON-formatted with consistent fields (`service.name`, `severity`, `event`, `trace_id`)
+- VictoriaLogs UI makes it much easier to filter by time range and severity compared to grepping `docker compose logs`
+- Each log entry has a `trace_id` that links to distributed traces in VictoriaTraces
+
+---
+
+## Task 3B — Traces
+
+### Healthy trace screenshot (span hierarchy)
+
+> **Student action:** Open `http://<your-vm-ip>:42002/utils/victoriatraces`, trigger a successful request, and find the matching trace.
+> Take a screenshot showing the span hierarchy.
+
+![Healthy trace](TODO: Add screenshot of VictoriaTraces UI showing healthy trace with span hierarchy)
+
+**Trace description:**
+- Services involved: (e.g., Caddy → backend → postgres)
+- Total duration: (e.g., ~50ms)
+- Span hierarchy: (describe the top-level spans)
+
+### Error trace screenshot (after stopping postgres)
+
+> **Student action:** Run `docker compose --env-file .env.docker.secret stop postgres`, trigger a request, then find the error trace.
+> Take a screenshot showing where the failure occurred.
+
+![Error trace](TODO: Add screenshot of VictoriaTraces UI showing error trace with failure point)
+
+**Trace description:**
+- Where the error appears: (e.g., postgres span shows connection refused)
+- Error status: (e.g., 500 or 503)
+- Comparison with healthy trace: (note the difference in span structure or duration)
+
+**Key observations:**
+- Traces show the full request path across services
+- Error traces clearly show which span failed and why
+- The `trace_id` from logs matches the trace ID in VictoriaTraces, linking logs and traces together
+
+---
+
+## Task 3C — Observability MCP tools
+
+### Agent response under normal conditions
+
+> **Student action:** Ask the agent "Any LMS backend errors in the last 10 minutes?" with all services running.
+> Paste the response below.
+
+```
+TODO: Paste agent response showing no errors found (or healthy status report)
+```
+
+**Expected behavior:** Agent should call `logs_error_count` first, then report no recent errors or a healthy status.
+
+### Agent response under failure conditions
+
+> **Student action:** Run `docker compose --env-file .env.docker.secret stop postgres`, trigger a few LMS-backed requests through the Flutter app, then ask "Any LMS backend errors in the last 10 minutes?"
+> Paste the response below.
+
+```
+TODO: Paste agent response showing it detected the backend errors you just caused
+```
+
+**Expected behavior:** Agent should report the new backend errors, mentioning specific details like the database connection failure.
+
+### MCP tools registered
+
+After redeploy, the following tools should appear in nanobot logs:
+
+- `mcp_obs_logs_search` — search logs by keyword and/or time range
+- `mcp_obs_logs_error_count` — count errors per service over a time window
+- `mcp_obs_traces_list` — list recent traces for a service
+- `mcp_obs_traces_get` — fetch a specific trace by ID
+
+### Files modified for Task 3C
+
+1. **`mcp/mcp-obs/src/mcp_obs/server.py`** — MCP server exposing observability tools
+2. **`mcp/mcp-obs/src/mcp_obs/observability.py`** — VictoriaLogs and VictoriaTraces API clients
+3. **`nanobot/pyproject.toml`** — Uncommented `"mcp-obs"` dependency
+4. **`nanobot/entrypoint.py`** — Uncommented obs MCP server configuration and Settings fields
+5. **`docker-compose.yml`** — Uncommented `NANOBOT_VICTORIALOGS_URL` and `NANOBOT_VICTORIATRACES_URL`
+6. **`nanobot/workspace/skills/observability/SKILL.md`** — Observability skill prompt (already created)
+
+---
+
 ## Summary
 
 ### Files Modified
