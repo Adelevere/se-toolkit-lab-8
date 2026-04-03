@@ -1,4 +1,137 @@
 {
   "version": 1,
-  "jobs": []
+  "jobs": [
+    {
+      "id": "1a683206",
+      "name": "HEALTH CHECK: Check LMS/backen",
+      "enabled": true,
+      "schedule": {
+        "kind": "every",
+        "atMs": null,
+        "everyMs": 120000,
+        "expr": null,
+        "tz": null
+      },
+      "payload": {
+        "kind": "agent_turn",
+        "message": "HEALTH CHECK: Check LMS/backend health for the last 2 minutes. Steps: 1) Call mcp_obs_obs_logs_error_count for service \"Learning Management Service\" with time_window \"2m\". 2) If errors > 0, call mcp_obs_obs_logs_query with query '_time:2m service.name:\"Learning Management Service\" severity:ERROR' limit 10 to see details. 3) If errors found, pick a trace_id from results and call mcp_obs_obs_traces_get to inspect. 4) Also call mcp_lms_lms_health to check backend health. 5) Post a short summary to this chat (chat_id: d373ee02-42f0-4119-9d58-aa32b887e989) using mcp_webchat_ui_message with type \"text\". If no errors and backend is healthy, say \"✅ System looks healthy — no errors in the last 2 minutes.\" If errors found, summarize the error count, key messages, and any trace insights.",
+        "deliver": true,
+        "channel": "webchat",
+        "to": "d373ee02-42f0-4119-9d58-aa32b887e989"
+      },
+      "state": {
+        "nextRunAtMs": 1775210520092,
+        "lastRunAtMs": 1775210374359,
+        "lastStatus": "ok",
+        "lastError": null,
+        "runHistory": [
+          {
+            "runAtMs": 1775208166384,
+            "status": "ok",
+            "durationMs": 23902,
+            "error": null
+          },
+          {
+            "runAtMs": 1775208310288,
+            "status": "ok",
+            "durationMs": 23587,
+            "error": null
+          },
+          {
+            "runAtMs": 1775208453878,
+            "status": "ok",
+            "durationMs": 17529,
+            "error": null
+          },
+          {
+            "runAtMs": 1775208591409,
+            "status": "ok",
+            "durationMs": 18201,
+            "error": null
+          },
+          {
+            "runAtMs": 1775208729612,
+            "status": "ok",
+            "durationMs": 18706,
+            "error": null
+          },
+          {
+            "runAtMs": 1775208868320,
+            "status": "ok",
+            "durationMs": 10946,
+            "error": null
+          },
+          {
+            "runAtMs": 1775208999268,
+            "status": "ok",
+            "durationMs": 12939,
+            "error": null
+          },
+          {
+            "runAtMs": 1775209132208,
+            "status": "ok",
+            "durationMs": 12648,
+            "error": null
+          },
+          {
+            "runAtMs": 1775209264857,
+            "status": "ok",
+            "durationMs": 10999,
+            "error": null
+          },
+          {
+            "runAtMs": 1775209395858,
+            "status": "ok",
+            "durationMs": 14866,
+            "error": null
+          },
+          {
+            "runAtMs": 1775209530726,
+            "status": "ok",
+            "durationMs": 11333,
+            "error": null
+          },
+          {
+            "runAtMs": 1775209662060,
+            "status": "ok",
+            "durationMs": 10989,
+            "error": null
+          },
+          {
+            "runAtMs": 1775209793051,
+            "status": "ok",
+            "durationMs": 25057,
+            "error": null
+          },
+          {
+            "runAtMs": 1775209938109,
+            "status": "ok",
+            "durationMs": 25203,
+            "error": null
+          },
+          {
+            "runAtMs": 1775210083313,
+            "status": "ok",
+            "durationMs": 25715,
+            "error": null
+          },
+          {
+            "runAtMs": 1775210229030,
+            "status": "ok",
+            "durationMs": 25327,
+            "error": null
+          },
+          {
+            "runAtMs": 1775210374359,
+            "status": "ok",
+            "durationMs": 25733,
+            "error": null
+          }
+        ]
+      },
+      "createdAtMs": 1775208046381,
+      "updatedAtMs": 1775210400092,
+      "deleteAfterRun": false
+    }
+  ]
 }
